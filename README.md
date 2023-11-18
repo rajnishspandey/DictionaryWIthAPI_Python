@@ -38,3 +38,6 @@
         static/
             style.css
         app.py
+
+## create requirement.txt
+> pip freeze > requirements.txt
