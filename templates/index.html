@@ -1,0 +1,105 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="#" type="image/x-icon">
+    <title>Dictionary</title>
+    <link rel="stylesheet" href="static/styles.css">
+    <!-- Add this style block within the head section of your HTML -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var resultSection = $('#resultSection');
+
+            $('#searchForm').submit(function (e) {
+                e.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: '/dict',
+                    data: {word: $('#searchInput').val()},
+                    success: function (data) {
+                        updateResultSection(data);
+                        resultSection.show(); // Show the result section after receiving data
+                    },
+                    error: function (error) {
+                        console.log('Error:', error);
+                    }
+                });
+            });
+
+            function updateResultSection(data) {
+                resultSection.empty();
+
+                $.each(data.words, function (index, word) {
+                    resultSection.append('<h2>' + word.word + '</h2><p>');
+
+                    if (word.status === 'success') {
+                        resultSection.append('<ul>');
+                        $.each(word.data, function (index, definition) {
+                            resultSection.append('<li>' + definition[0] + ', ' + definition[1] + ': ' + definition[2] + '</li>');
+                        });
+                        resultSection.append('</ul>');
+                    } else if (word.status === 'partial') {
+                        resultSection.append('<p>Partial match found for \'' + word.word + '\':</p><ul>');
+                        $.each(word.data, function (index, definition) {
+                            resultSection.append('<li>' + definition[0] + ', ' + definition[1] + ': ' + definition[2] + '</li>');
+                        });
+                        resultSection.append('</ul>');
+                    } else if (word.status === 'error') {
+                        resultSection.append('<p>No results found for \'' + word.word + '\'.</p>');
+                    }
+
+                    resultSection.append('</p>');
+                });
+            }
+        });
+    </script>
+    <style>
+        #resultSection {
+            display: none; /* Hide the result section by default */
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Dictionary</h1>
+    </header>
+    <form id="searchForm">
+        <input type="text" id="searchInput" name="word" autocomplete="false" autofocus placeholder="Enter a word">
+        <button type="submit">Search</button>
+    </form>
+    <section id="resultSection">
+        {% for word in response.words %}
+        <h2>{{ word.word }}</h2>
+        <p>
+            {% if word.status == 'success' %}
+            <ul>
+                {% for definition in word.data %}
+                <li>
+                    {{ definition[0] }}, {{ definition[1] }}: {{ definition[2] }}
+                </li>
+                {% endfor %}
+            </ul>
+            {% elif word.status == 'partial' %}
+            <p>Partial match found for '{{ word.word }}':</p>
+            <ul>
+                {% for definition in word.data %}
+                <li>
+                    {{ definition[0] }}, {{ definition[1] }}: {{ definition[2] }}
+                </li>
+                {% endfor %}
+            </ul>
+            {% elif word.status == 'error' %}
+            <p>No results found for '{{ word.word }}'.</p>
+            {% endif %}
+        </p>
+        {% endfor %}
+    </section>
+</body>
+
+</html>
