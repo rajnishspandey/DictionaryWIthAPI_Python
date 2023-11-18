@@ -1,5 +1,7 @@
 # This repoository contains the example of FastAPI - Dictionary
 
+![dictionary](image.png)
+
 ## create virtual env
 > python -m venv env
 
@@ -8,7 +10,6 @@
 
 ## install modules using requirement.txt
 > pip install -r .\requirements.txt
-	
 	
 ## Run Flask API
 > flask run
