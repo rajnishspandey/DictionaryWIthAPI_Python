@@ -12,6 +12,7 @@ def index():
 def dictionary():
     if request.method == 'POST':
         word = request.form.get('word')
+        word = word.capitalize()
         definitions = match_exact(word)
 
         if definitions:
